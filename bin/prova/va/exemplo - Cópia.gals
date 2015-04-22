@@ -1,0 +1,104 @@
+#Options
+GenerateScanner = true
+GenerateParser = true
+Language = Java
+ScannerName = Lexico
+ParserName = Sintatico
+SemanticName = Semantico
+ScannerCaseSensitive = true
+ScannerTable = Full
+Input = Stream
+Parser = SLR
+#RegularDefinitions
+L  : [A-Za-z]
+D  : [0-9]
+REAL : [0-9]+ (\. [0-9]+)
+WS : [\ \t\n\r]
+COMMENT : "(*" [^ "*" ]* "*)"
+IG : "="
+FL : ";"
+APAR : "("
+FPAR : ")"
+ACHAV : "{"
+FCHAV : "}"
+OPERADORES : ["+" "-" "*" "/" "%"]
+CONDICIONAIS: "<" | ">" | "==" | "!=" | "<=" | ">="
+LOGICO : "&&" | "|" | "!"
+ASPAS: [\"]
+#Tokens
+apar : {APAR}
+fpar : {FPAR}
+achav:{ACHAV}
+fchav:{FCHAV}
+aspas : {ASPAS}
+fim_linha : {FL}
+palavras : {L} ( {L} | {D} | _ )*
+numero : {D}+
+reais : {REAL}
+op_aritimetico : {OPERADORES}
+op_condicionais : {CONDICIONAIS} 
+op_logico : {LOGICO}
+op_recebe : {IG}
+op_negacao = op_logico : "!"
+op_ou = op_logico : "|"
+op_e = op_logico : "&&"
+se = palavras : "se"
+entao  = palavras : "entao"
+senao  = palavras : "senao"
+int = palavras : "numeros"
+string = palavras : "letras"
+real = palavras : "real"
+inicializador = palavras : "principal"
+enquanto = palavras : "enquanto"
+enquanto_faca    = palavras : "faca"
+repita = palavras : "repita"
+virgula : ","
+read = palavras : "read"
+writeln = palavras : "writeln"
+: {WS}*
+:! {COMMENT}
+#NonTerminals
+<PROGRAMA>
+<CORPO>
+<DECLARA>
+<SENTENCAS>
+<TIPO_VAR>
+<COMANDO>
+<EXPRESSAO>
+<TERMO>
+<PAL_NUM>
+<CONDICOES>
+<SE>
+<SENAO>
+<OP_CONDICIONAL>
+<MAIS_CONDICOES>
+<VARIAVEIS>
+<MAIS_VAR>
+<ID>
+<NUM>
+<ALL>
+<SIMPLES>
+<NEGACAO>
+<OU_E>
+#Grammar
+<PROGRAMA> ::=inicializador  achav <CORPO> fchav;
+<CORPO> ::= <DECLARA> <SENTENCAS> ;
+<DECLARA> ::= <TIPO_VAR> <VARIAVEIS> fim_linha <DECLARA> |  î ;
+<TIPO_VAR> ::= string | int | real ;
+<VARIAVEIS> ::= <ID> <MAIS_VAR> | <EXPRESSAO> <MAIS_VAR>;
+<MAIS_VAR> ::= virgula <VARIAVEIS> |  î;
+<SENTENCAS> ::= <COMANDO> <SENTENCAS> | <EXPRESSAO> fim_linha <SENTENCAS> | <SIMPLES> <SENTENCAS> | î ;
+<COMANDO> ::= enquanto apar<CONDICOES> fpar enquanto_faca achav <CORPO> fchav |
+	repita apar <NUM> fpar achav <CORPO> fchav | 
+		se apar <CONDICOES> fpar entao achav <CORPO> fchav <SENAO>;
+<SENAO> ::= senao achav <CORPO> fchav | î;
+<EXPRESSAO> ::= <ID> op_recebe <TERMO> | <ID> op_recebe aspas<ALL>aspas;
+<TERMO> ::= <ALL> op_aritimetico <ALL> | apar <ALL> op_aritimetico <ALL> fpar | <ALL> ;
+<CONDICOES>::= <NEGACAO> apar <CONDICOES> fpar| apar <CONDICOES> fpar <OU_E> apar <CONDICOES> fpar | <MAIS_CONDICOES>;
+<MAIS_CONDICOES> ::= <TERMO> op_condicionais <TERMO>;
+<ID> ::= palavras;
+<NUM> ::= numero;
+<ALL> ::= palavras | numero | reais;
+<NEGACAO> ::= op_negacao;
+<OU_E> ::= op_ou | op_e;
+<SIMPLES> ::= read apar <ID> fpar fim_linha | writeln apar <ALL> fpar fim_linha;
